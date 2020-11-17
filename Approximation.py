@@ -1,12 +1,14 @@
 from graph import *
 
-def Approximation(G):
+def Approximation(G,out_dir="./App_out/"):
     """
     Inputs:
         G (dict): Unidirected Graph, Like a Adjacent Linked List
 			For example: {1: [2, 3], 2: [1, 3], 3: [1, 2]}
 			Keys: Vertices
 			Values: the list of adjacencies for corresponing key. 
+
+		out_dir: Path of output dir
 
 	Outputs:
 		A .sol file:

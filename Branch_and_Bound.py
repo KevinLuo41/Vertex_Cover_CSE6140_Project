@@ -1,14 +1,16 @@
 from graph import *
 
-def BnB(G):
+def BnB(G,out_dir="./BnB_out/"):
     """
     Inputs:
         G (dict): Unidirected Graph, Like a Adjacent Linked List
 			For example: {1: [2, 3], 2: [1, 3], 3: [1, 2]}
 			Keys: Vertices
 			Values: the list of adjacencies for corresponing key. 
+			
+		out_dir: Path of output dir
 
-	Outputs:
+	Outputs: 
 		A .sol file:
 			File name: < instance >_< method >_< cutoff >_< randSeed > ∗.sol, 
 			e.g. jazz_BnB_600.sol, jazz_LS1_600_4.sol Note that as in the example 
