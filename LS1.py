@@ -42,12 +42,12 @@ class LocalSearch0:
                 7.94, 95
     """
 
-    def __init__(self, G, E, out_dir="./LS1_out/", cut_off=50, seed=1, rho=0.5, gamma=None):
+    def __init__(self, G, out_dir="./LS1_out/", cut_off=50, seed=1, rho=0.5, gamma=None):
         random.seed(seed)
 
         self.G = G
-        self.E = E
-        self.W = E
+        self.V = list(self.G.keys())
+
         self.cut_off = cut_off
         self.out_dir = out_dir
         self.C = dict()
@@ -57,6 +57,14 @@ class LocalSearch0:
         self.dscore = {}
         self.confChange = dict(zip(self.G.keys(), [1] * self.V))
         self.uncover = None
+
+
+    def init_sol(self):
+
+
+
+    def LS(self):
+        pass
 
 
 
@@ -69,11 +77,11 @@ if __name__ == "__main__":
     except:
         p_path = data_path + "dummy1.graph"
 
-    G, E = build_graph(p_path, weighted=1)
+    G, E = build_graph(p_path)
 
-    # print(G)
+    print(G)
 
-    LS = LocalSearch0(G, E)
+    Test = LocalSearch0(G, E)
 
-    opt = LS.LocalSearch()
+    opt = Test.LS()
     print(len(list(opt.keys())))
