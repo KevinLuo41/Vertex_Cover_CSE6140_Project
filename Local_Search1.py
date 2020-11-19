@@ -1,6 +1,7 @@
 from graph import *
 import time
 import random
+import sys
 
 
 class LocalSearch1:
@@ -42,7 +43,7 @@ class LocalSearch1:
                 7.94, 95
     """
 
-    def __init__(self, G, E, out_dir="./LS1_out/", cut_off=100, seed = 1, rho=0.3, gamma=None):
+    def __init__(self, G, E, out_dir="./LS1_out/", cut_off=50, seed=1, rho=0.5, gamma=None):
         random.seed(seed)
 
         self.G = G
@@ -85,10 +86,10 @@ class LocalSearch1:
             C_temp = self.C.copy()
             if v in C_temp:
                 del C_temp[v]
-                self.dscore[v] = abs(check(self.G, self.C, True) - check(self.G, C_temp, True))
+                self.dscore[v] = check(self.G, self.C, True) - check(self.G, C_temp, True)
             else:
                 C_temp[v] = ""
-                self.dscore[v] = abs(check(self.G, self.C, True) - check(self.G, C_temp, True))
+                self.dscore[v] = check(self.G, self.C, True) - check(self.G, C_temp, True)
         return self.dscore
 
     def high_old(self, e=None):
@@ -98,22 +99,29 @@ class LocalSearch1:
         """
 
         ### 问题在于先从C里选，再找最大的；而不是先找了最大的再开C
+
         if e:
             p, q = e
-            if self.dscore[p] > self.dscore[p]:
-                ties = [p]
-            elif self.dscore[p] < self.dscore[p]:
-                ties = [q]
-            else:
-                ties = [p, q]
-                ties = [p, q]
-        else:
-            max_dscore = max(self.dscore.values())
-            ties = [k for k, v in self.dscore.items() if v == max_dscore]
 
-        for v in list(self.C.keys()):
-            if v in ties:
-                return v
+            if self.dscore[p] > self.dscore[q]:
+                return p
+            elif self.dscore[p] < self.dscore[q]:
+                return q
+            else:
+                if random.randint(0, 1): return p
+                else: return q
+
+
+
+        else:
+            # dscore_temp = {}
+            maxd = -sys.maxsize
+            selected = -1
+            for i in self.C.keys():
+                if self.dscore[i] > maxd:
+                    maxd = self.dscore[i]
+                    selected = i
+            return selected
 
     def random_choose(self, e):
 
@@ -132,11 +140,16 @@ class LocalSearch1:
         # print(self.uncover)
 
         C_opt = self.C.copy()
+
+        print(len(list(C_opt.keys())))
         elapse_time = 0
         tik = time.time()
 
         while elapse_time < self.cut_off:
             if check(self.G, self.C, weighted=True) == 0:
+                C_opt = self.C.copy()
+                print(len(list(C_opt.keys())))
+                print(list(C_opt.keys()))
                 # print(self.high_old())
                 del self.C[self.high_old()]
                 self.update_dscore()
@@ -155,7 +168,7 @@ class LocalSearch1:
             v = self.random_choose(e)
             self.C[v] = ""
             self.update_dscore()
-            for z in G[u].keys():
+            for z in G[v].keys():
                 self.confChange[z] = 1
 
             _, self.uncover = check(self.G, self.C, weighted=True, uncovered=True)
@@ -166,14 +179,14 @@ class LocalSearch1:
                 self.G[q][p] += 1
                 self.W += 2
 
-            if self.W/self.E >= self.gamma:
+            if self.W / self.E >= self.gamma:
                 for p, q in self.uncover:
                     self.W = self.W + 2 * int(self.rho * self.G[p][q]) - 2 * self.G[p][q]
                     self.G[p][q] = int(self.rho * self.G[p][q])
                     self.G[q][p] = int(self.rho * self.G[p][q])
 
             elapse_time = time.time() - tik
-
+            # print(self.C)
         return C_opt
 
 
@@ -184,13 +197,13 @@ if __name__ == "__main__":
     try:
         p_path = data_path + sys.argv[1]
     except:
-        p_path = data_path + "dummy2.graph"
+        p_path = data_path + "dummy1.graph"
 
     G, E = build_graph(p_path, weighted=1)
-    # print(G,E)
+
+    # print(G)
 
     LS = LocalSearch1(G, E)
 
-    LS.LocalSearch()
-
-
+    opt = LS.LocalSearch()
+    print(len(list(opt.keys())))
