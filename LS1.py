@@ -3,17 +3,10 @@ import time
 import random
 import sys
 import copy
+import networkx.algorithms.approximation.vertex_cover as mvc
 
-# def check(G, C):
-#     cost = 0
-#     C = set(C.keys())
-#     # uncover = set()
-#     for s, slist in G.items():
-#         if s not in C:
-#             e = slist.difference(C)
-#             # uncover.update(set(zip([s] * len(e), e)))
-#             cost += len(e)
-#     return cost
+
+
 
 class LocalSearch0:
     """
@@ -66,45 +59,16 @@ class LocalSearch0:
 
         self.cut_off = cut_off
         self.out_dir = out_dir
-        self.C = dict()
+        self.C = set()
+        self.uncover = []
+        self.dscore = [0]*(len(self.V)+1)
 
         self.p = p
 
         self.check_time = 0
 
     def init_sol(self):
-        V = {k: v for k, v in sorted(self.D.items(), key=lambda item: item[1],reverse=True)}
-        E = self.G.copy()
-
-        # for v in V.keys():
-        #     if v not in E.keys():
-        #         continue
-        #     self.C[v]=""
-        #     for u in E[v].keys():
-        #         del E[u][v]
-        #         if len(E[u]) == 0:
-        #             E.pop(u,None)
-        #
-        #     E.pop(v,None)
-        #
-        #     if len(E) == 0:
-        #         break
-
-        for v in V.keys():
-            if v not in E.keys():
-                continue
-            self.C[v]=""
-            for u in E[v]:
-                E[u].remove(v)
-                if len(E[u]) == 0:
-                    E.pop(u,None)
-
-            E.pop(v,None)
-
-            if len(E) == 0:
-                break
-
-        # print("???",len(self.C))
+        self.C = mvc.min_weighted_vertex_cover(G)
 
 
     def find_vertex(self):
@@ -112,7 +76,7 @@ class LocalSearch0:
 
         maxd = -sys.maxsize
         selected = -1
-        for v in list(self.C.keys()):
+        for v in list(self.C):
             C_temp = self.C.copy()
             del C_temp[v]
 
@@ -123,9 +87,6 @@ class LocalSearch0:
             if dscore > maxd:
                 maxd = dscore
                 selected = v
-
-
-
         return selected
 
 
@@ -141,7 +102,7 @@ class LocalSearch0:
             i+=1
             print(i)
 
-            if check(self.GG,self.C)==0:
+            if check(self.GG,self.C) == 0:
 
 
                 C_opt = self.C.copy()

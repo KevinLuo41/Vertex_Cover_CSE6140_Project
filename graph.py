@@ -1,7 +1,7 @@
 import time
 import sys
 import numpy as np
-
+import networkx as nx
 import copy
 
 
@@ -19,7 +19,7 @@ def build_graph(filename):
         E: num of edges
 
     """
-    G = {}
+    G = nx.Graph()
     with open(filename, 'r') as graph:
         V, E, _ = list(map(lambda x: int(x), graph.readline().split()))
         GG = np.zeros([V+1,V+1])
@@ -29,14 +29,12 @@ def build_graph(filename):
         for line in graph:
 
             vertices = list(map(lambda x: int(x), line.split()))
-            # print(i)
-            GG[i][vertices] = 1
-            G[i] = set(vertices)
-            # GGG[i] = dict(zip(vertices,[""]*(len(vertices))))
-            D[i] = len(vertices)
+
+            for v in vertices:
+                G.add_edge(i,v,weight = 1)
             i += 1
 
-    return G, D, E, GG
+    return G, D, E
 
 
 # def check(G, C):
