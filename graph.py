@@ -1,12 +1,12 @@
 import time
 import sys
+import numpy as np
 
-from heapq import *
-from queue import PriorityQueue as PQ
-import itertools
+import copy
 
 
-def build_graph(filename, weighted=False, edge=False):
+
+def build_graph(filename):
     """
     Inputs:
         filename (str): graph file path
@@ -22,34 +22,73 @@ def build_graph(filename, weighted=False, edge=False):
     G = {}
     with open(filename, 'r') as graph:
         V, E, _ = list(map(lambda x: int(x), graph.readline().split()))
+        GG = np.zeros([V+1,V+1])
+
         i = 1
+        D = {}
         for line in graph:
-            vertices = set(list(map(lambda x: int(x), line.split())))
-            if weighted:
-                G[i] = dict(zip(vertices, [1] * len(vertices)))
-            else:
-                G[i] = vertices
+
+            vertices = list(map(lambda x: int(x), line.split()))
+            # print(i)
+            GG[i][vertices] = 1
+            G[i] = set(vertices)
+            # GGG[i] = dict(zip(vertices,[""]*(len(vertices))))
+            D[i] = len(vertices)
             i += 1
 
-    return G if edge else G, E
+    return G, D, E, GG
 
 
-def check(G, C, weighted=False, uncovered=False):
-    cost = 0
-    C = set(C.keys())
-    uncover = set()
-    for s, slist in G.items():
-        if s not in C:
-            if weighted:
-                for e, w in slist.items():
-                    if e not in C:
-                        cost += w
-                        uncover.add((min(s, e), max(s, e)))
-            else:
-                e = slist.difference(C)
-                uncover.update(set(zip([s] * len(e), e)))
-                cost += len(e)
-    if uncovered:
-        return cost, uncover
+# def check(G, C):
+#     # G = GG.copy()
+#     # for s in C.keys():
+#     #     G[s,:] = 0
+#     #     G[:,s] = 0
+#     #
+#     # cost = G.sum()
+#
+#
+#
+#
+#     cost = 0
+#     check_time = 0
+#     C = set(C.keys())
+#     tt = time.time()
+#     for s, slist in G.items():
+#         if s not in C:
+#
+#
+#             e = slist.difference(C)
+#
+#             # uncover.update(set(zip([s] * len(e), e)))
+#             cost += len(e)
+#     # check_time += time.time() - tt
+#     # print(check_time)
+#
+#
+#     return cost
 
+# def check(G,C):
+#     E = G.copy()
+#     for v in C.keys():
+#         if v not in E.keys():
+#             continue
+#         for u in E[v].keys():
+#             del E[u][v]
+#             if len(E[u]) == 0:
+#                 E.pop(u, None)
+#
+#         E.pop(v, None)
+#
+#     cost = 0
+#     for s, e in E.items():
+#         cost+=len(e)
+#     return cost
+
+def check(GG,C):
+    G = GG.copy()
+    G[list(C.keys()),:] = 0
+    G[:,list(C.keys())] = 0
+
+    cost = G.sum()
     return cost
