@@ -163,5 +163,5 @@ class LS1:
                             self.dscore[v] -= self.G[u][v]["weight"]
 
             elapse_time = time.time() - tik
-
+        #return
         return list(C_opt.keys()), self.output
