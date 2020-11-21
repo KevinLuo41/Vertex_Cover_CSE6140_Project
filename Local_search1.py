@@ -5,13 +5,14 @@ import sys
 
 import networkx.algorithms.approximation.vertex_cover as mvc
 
+
 class LS1:
-    def __init__(self, G, V, E,             # Graph
-                 out_dir="./OUT/LS1_out/",      # output dir
-                 cut_off=60,               # cut off time
-                 seed=1,                    # random seed
-                 gamma=None,                # reduction threshold
-                 rho=None                    # reduction rate
+    def __init__(self, G, V, E,  # Graph
+                 out_dir="./OUT/LS1_out/",  # output dir
+                 cut_off=60,  # cut off time
+                 seed=1,  # random seed
+                 gamma=None,  # reduction threshold
+                 rho=None  # reduction rate
                  ):
 
         random.seed(seed)
@@ -37,9 +38,10 @@ class LS1:
 
         self.output = []
 
+    # Generate Initial Solution
     def init_sol(self):
-        C = mvc.min_weighted_vertex_cover(self.G,weight="weight")
-        self.C = dict(zip(C,[""]*len(C)))
+        C = mvc.min_weighted_vertex_cover(self.G, weight="weight")
+        self.C = dict(zip(C, [""] * len(C)))
 
         # nodes = list(self.G.nodes())
         # D = sorted(list(zip(dict(self.G.degree(nodes)).values(), nodes)), reverse=True)
@@ -53,10 +55,9 @@ class LS1:
         #         unc.discard((v, x))
         #         unc.discard((x, v))
         #         if not unc:
-        #             return
+        #             returngit push <remote_name> --delete <branch_name>
 
-
-
+    # Find a vertex with highest dscore
     def find_vertex(self):
         maxd = -sys.maxsize
         selected = -1
@@ -66,6 +67,7 @@ class LS1:
                 selected = v
         return selected
 
+    # Existing vertex
     def removeVertex(self, v):
         self.dscore[v] = -self.dscore[v]
         self.confChange[v] = 0
@@ -98,6 +100,7 @@ class LS1:
         else:
             raise ValueError("Two vertices of the selected edge cannot be zero simultaneously")
 
+    # Entering vertex
     def addVertex(self, v):
         self.dscore[v] = -self.dscore[v]
         for x in self.G.neighbors(v):
@@ -112,26 +115,24 @@ class LS1:
 
         self.C[v] = ""
 
+    # NuMVC search
     def search(self):
+
+        # Initialization
         C_opt = None
         self.init_sol()
         elapse_time = 0
         tik = time.time()
 
+        # Hill Climbing
         while elapse_time < self.cut_off:
 
             if not self.uncover:
                 C_opt = self.C.copy()
                 h = self.find_vertex()
                 self.removeVertex(h)
-
-                # print(len(C_opt))
-
-                record = time.time()-tik
-
+                record = time.time() - tik
                 self.output.append((format(record, '.2f'), len(list(C_opt.keys()))))
-
-                # print(C_opt)
                 continue
 
             u = self.find_vertex()
@@ -140,11 +141,12 @@ class LS1:
             v = self.chooseAdd()
             self.addVertex(v)
 
-
+            # Update weight
             for p, q in self.uncover:
                 self.G[p][q]["weight"] += 1
                 self.dscore[p] += 1
 
+            # Forgetting weight
             if self.G.size(weight="weight") / self.E >= self.gamma:
                 self.dscore = [0] * (self.V + 1)
                 self.uncover = []
@@ -162,6 +164,4 @@ class LS1:
 
             elapse_time = time.time() - tik
 
-        return C_opt, self.output
-
-
+        return list(C_opt.keys()), self.output
