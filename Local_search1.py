@@ -1,29 +1,19 @@
-# from graph import *
+from graph import *
 import time
 import random
 import sys
-import copy
-import networkx as nx
+
 import networkx.algorithms.approximation.vertex_cover as mvc
 
+class LS1:
+    def __init__(self, G, V, E,             # Graph
+                 out_dir="./OUT/LS1_out/",      # output dir
+                 cut_off=60,               # cut off time
+                 seed=1,                    # random seed
+                 gamma=None,                # reduction threshold
+                 rho=None                    # reduction rate
+                 ):
 
-def build_graph(filename):
-    G = nx.Graph()
-    with open(filename, 'r') as graph:
-        V, E, _ = list(map(lambda x: int(x), graph.readline().split()))
-
-        i = 1
-        for line in graph:
-            vertices = list(map(lambda x: int(x), line.split()))
-            for v in vertices:
-                G.add_edge(i, v, weight=1)
-            i += 1
-
-    return G, V, E
-
-
-class LocalSearch11:
-    def __init__(self, G, V, E, out_dir="./LS1_out/", cut_off=120, seed=1, gamma=None, rho=0.3):
         random.seed(seed)
 
         self.G = G
@@ -40,9 +30,10 @@ class LocalSearch11:
 
         self.confChange = [1] * (self.V + 1)
 
-        self.rho = rho
+        if not rho:
+            self.rho = 0.3
         if not gamma:
-            self.gamma = V / 5
+            self.gamma = V / 2
 
         self.output = []
 
@@ -64,6 +55,8 @@ class LocalSearch11:
         #         if not unc:
         #             return
 
+
+
     def find_vertex(self):
         maxd = -sys.maxsize
         selected = -1
@@ -80,7 +73,6 @@ class LocalSearch11:
             self.confChange[x] = 1
             if x not in self.C.keys():
                 self.uncover.extend([(v, x), (x, v)])
-                # print(self.G[v][x]["weight"],"asdfadgfds")
                 self.dscore[x] += self.G[v][x]["weight"]
 
             else:
@@ -121,6 +113,7 @@ class LocalSearch11:
         self.C[v] = ""
 
     def search(self):
+        C_opt = None
         self.init_sol()
         elapse_time = 0
         tik = time.time()
@@ -132,10 +125,11 @@ class LocalSearch11:
                 h = self.find_vertex()
                 self.removeVertex(h)
 
-                print(len(C_opt))
+                # print(len(C_opt))
 
                 record = time.time()-tik
-                self.output.append((round(record,2), len(list(C_opt.keys()))))
+
+                self.output.append((format(record, '.2f'), len(list(C_opt.keys()))))
 
                 # print(C_opt)
                 continue
@@ -146,15 +140,13 @@ class LocalSearch11:
             v = self.chooseAdd()
             self.addVertex(v)
 
-            # print(self.uncover)
 
             for p, q in self.uncover:
                 self.G[p][q]["weight"] += 1
                 self.dscore[p] += 1
 
-            # print("wwwww: ",G.size(weight="weight"))
-            if G.size(weight="weight") / self.E >= self.gamma:
-                self.dscore = [0] * (V + 1)
+            if self.G.size(weight="weight") / self.E >= self.gamma:
+                self.dscore = [0] * (self.V + 1)
                 self.uncover = []
                 for u, v, w in self.G.edges(data=True):
                     w["weight"] = int(self.rho * w["weight"])
@@ -169,30 +161,7 @@ class LocalSearch11:
                             self.dscore[v] -= self.G[u][v]["weight"]
 
             elapse_time = time.time() - tik
-        #
-        # print(self.check_time)
-        return C_opt
 
-    def output(self):
+        return C_opt, self.output
 
 
-
-
-
-
-if __name__ == "__main__":
-
-    data_path = "./DATA/"
-
-    try:
-        p_path = data_path + sys.argv[1]
-    except:
-        p_path = data_path + "jazz.graph"
-
-    G, V, E = build_graph(p_path)
-
-    LS = LocalSearch11(G, V, E)
-
-    opt = LS.search()
-
-    print(len(list(opt.keys())))
