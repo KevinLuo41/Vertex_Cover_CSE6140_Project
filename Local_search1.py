@@ -173,7 +173,10 @@ class LocalSearch11:
         # print(self.check_time)
         return C_opt
 
-    def output(self): pass
+    def output(self):
+
+
+
 
 
 
@@ -184,11 +187,9 @@ if __name__ == "__main__":
     try:
         p_path = data_path + sys.argv[1]
     except:
-        p_path = data_path + "star2.graph"
+        p_path = data_path + "jazz.graph"
 
     G, V, E = build_graph(p_path)
-    # print(GGG)
-    # print(G.adj)
 
     LS = LocalSearch11(G, V, E)
 
