@@ -1,4 +1,3 @@
-from graph import *
 import time
 import random
 import sys
@@ -8,7 +7,6 @@ import networkx.algorithms.approximation.vertex_cover as mvc
 
 class LS1:
     def __init__(self, G, V, E,  # Graph
-                 out_dir="./OUT/LS1_out/",  # output dir
                  cut_off=60,  # cut off time
                  seed=1,  # random seed
                  gamma=None,  # reduction threshold
@@ -23,7 +21,6 @@ class LS1:
         self.E = E
 
         self.cut_off = cut_off
-        self.out_dir = out_dir
         self.C = {}
 
         self.uncover = []

@@ -1,5 +1,5 @@
 import argparse
-from graph import *
+from helper import *
 from Local_search1 import *
 from Local_search2 import *
 from Branch_and_Bound import *
@@ -11,7 +11,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-inst', required=True, type=str, default="dummy1.graph")
-    parser.add_argument('-alg', required=True, type=str, choices=["BnB", "Approx", "LS1", "LS2"], default="LS1")
+    parser.add_argument('-alg', required=True, type=str, choices=["BnB", "Approx", "LS1", "LS2"], default="LS2")
     parser.add_argument('-time', type=int, default=2)
     parser.add_argument('-seed', type=int, default=1)
 
@@ -36,10 +36,14 @@ if __name__ == '__main__':
     # Run algorithm
     print("Run %s on %s with cutoff %s and random seed %s" % (inst, alg, time, seed))
     if args.alg == "BnB":
-        pass
+        BnB = BnB(G, cut_off=args.time, seed=args.seed)
+        opt, trace = BnB.search()
+        write_out(opt, trace, "./OUT/BnB_out/" + out_path)
 
     elif args.alg == "Approx":
-        pass
+        App = Approx(G, cut_off=args.time, seed=args.seed)
+        opt, trace = App.search()
+        write_out(opt, trace, "./OUT/App_out/" + out_path)
 
     elif args.alg == "LS1":
         LS = LS1(G, V, E, cut_off=args.time, seed=args.seed, gamma=args.gamma, rho=args.rho)
@@ -47,4 +51,8 @@ if __name__ == '__main__':
         write_out(opt, trace, "./OUT/LS1_out/" + out_path)
 
     elif args.alg == "LS2":
-        pass
+        G,E = build_graph2("./DATA/" + args.inst)
+        #print(G,1111,E)
+        LS = LocalSearch2(G, E, cut_off=args.time, seed=args.seed)
+        sol,trace = LS.simulated_annealing()
+        write_out(sol, trace, "./OUT/LS2_out/" + out_path)
